@@ -55,7 +55,7 @@ def sleep_command():
     
 def service_wasol(sock, data):
     try:
-        if test_fake_mac_addr():
+        if get_mac_addr() is None:
             raise FakeMacError()
         sleep_magic_packet = bytes([0x00]*6+get_mac_addr()*16)
 
