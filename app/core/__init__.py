@@ -1,0 +1,1 @@
+from app.core import wasol_serv

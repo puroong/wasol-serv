@@ -1,4 +1,7 @@
 from uuid import getnode as get_mac
+import logging
+
+logger = logging.getLogger('wasol_logger')
 
 # ================== Exceptions =================
 class FakeMacError(Exception):
@@ -46,12 +49,16 @@ port = 9
 
 def sleep_command():
     plat_sys = platform.system()
-    if plat_sys == 'Windows':
-        os.system('shutdown /p')
-    elif plat_sys == 'Linux':
-        os.system('shutdown now')
-    else:
-        raise UnknownOSError()
+    try:
+        logger.debug(f'using sleep command in [platform : {plat_sys}]...')
+        if plat_sys == 'Windows':
+            os.system('shutdown /p')
+        elif plat_sys == 'Linux':
+            os.system('shutdown now')
+        else:
+            raise UnknownOSError()
+    except:
+        logger.error('unexpected error', exc_info=True)
     
 def service_wasol(sock, data):
     try:
@@ -60,19 +67,22 @@ def service_wasol(sock, data):
         sleep_magic_packet = bytes([0x00]*6+get_mac_addr()*16)
 
         if data == sleep_magic_packet:
+            logger.debug('received sleep magic packet.')
             sleep_command()
     except FakeMacError as e:
-        print(e)
+        logger.error(e.msg, exc_info=True)
     except UnknownOSError as e:
-        print(e)
+        logger.error(e.msg, exc_info=True)
         
 
-sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-sock.bind((host, port))
+def run():
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sock.bind((host, port))
 
-while True:
-    data, addr = sock.recvfrom(1024)
-    print('received data from', data)
-    service_wasol(sock, data)
+    while True:
+        logger.debug(f'listening on {host}:{port}...')
+        data, addr = sock.recvfrom(1024)
+        logger.debug(f'received [data : {data}] from [addr : {addr}]')
+        service_wasol(sock, data)
     
 # =================================================
