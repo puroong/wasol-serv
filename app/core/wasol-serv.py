@@ -47,8 +47,8 @@ port = 9
 def sleep_command():
     plat_sys = platform.system()
     if plat_sys == 'Windows':
-        os.system('shutdown /t 1')
-    elif plat_sys == 'Linus':
+        os.system('shutdown /p')
+    elif plat_sys == 'Linux':
         os.system('shutdown now')
     else:
         raise UnknownOSError()
