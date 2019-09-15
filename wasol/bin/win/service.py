@@ -3,7 +3,10 @@ import win32serviceutil
 import servicemanager
 import win32event
 import win32service
-from app import core
+import logging
+from wasol import core
+
+logger = logging.getLogger('wasol_logger')
 
 class WasolService(win32serviceutil.ServiceFramework):
     _svc_name_ = 'wasolService'
@@ -27,11 +30,13 @@ class WasolService(win32serviceutil.ServiceFramework):
         self._wasol = core.Wasol()
     
     def SvcStop(self):
+        logger.debug('stopping wasolservice...')
         self._wasol.close_socket()
         self.ReportServiceStatus(win32service.SERVICE_STOP_PENDING)
         win32event.SetEvent(self._hWaitStop)
     
     def SvcDoRun(self):
+        logger.debug('starting wasolservice...')
         self._wasol.open_socket()
         servicemanager.LogMsg(servicemanager.EVENTLOG_INFORMATION_TYPE,
                                 servicemanager.PYS_SERVICE_STARTED,
