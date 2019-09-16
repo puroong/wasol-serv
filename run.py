@@ -7,6 +7,9 @@ import platform
 def prepare_win():
     # add python37 to system path
     python_path = '\\'.join(sys.executable.split('\\')[:-1])
+    # for virtualenv
+    if python_path.find('Scripts'):
+        python_path = '\\'.join(python_path.split('\\')[:-1])
     os.environ['PATH'] = f"{os.environ['PATH']}{python_path};"
 
     # add cur path as pythonpath
