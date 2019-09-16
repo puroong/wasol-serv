@@ -32,7 +32,6 @@ class WasolService(win32serviceutil.ServiceFramework):
         logger.debug('begin init')
         win32serviceutil.ServiceFramework.__init__(self, args)
         self._hWaitStop = win32event.CreateEvent(None, 0, 0, None)
-        socket.setdefaulttimeout(60)
         self._wasol = core.Wasol()
         logger.debug('end init')
     
@@ -45,13 +44,16 @@ class WasolService(win32serviceutil.ServiceFramework):
         logger.debug('end svcstop')
     
     def SvcDoRun(self):
-        logger.debug('start svcdorun')
-        logger.debug('starting wasolservice...')
-        self._wasol.open_socket()
-        self._wasol.main()
-        win32event.WaitForSingleObject(self._hWaitStop, win32event.INFINITE)
-        self.ReportServiceStatus(win32service.SERVICE_RUNNING)
-        servicemanager.LogMsg(servicemanager.EVENTLOG_INFORMATION_TYPE,
+        try:
+            logger.debug('start svcdorun')
+            logger.debug('starting wasolservice...')
+            self._wasol.open_socket()
+            self._wasol.main()
+            win32event.WaitForSingleObject(self._hWaitStop, win32event.INFINITE)
+            self.ReportServiceStatus(win32service.SERVICE_RUNNING)
+            servicemanager.LogMsg(servicemanager.EVENTLOG_INFORMATION_TYPE,
                                 servicemanager.PYS_SERVICE_STARTED,
                                 (self._svc_name_, ''))
-        logger.debug('end svcdorun')
+            logger.debug('end svcdorun')
+        except Exception as e:
+            logger.error(str(e))

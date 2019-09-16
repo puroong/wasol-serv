@@ -76,9 +76,12 @@ class Wasol:
 
     def main(self):
         while True:
-            data, addr = self._sock.recvfrom(1024)
-            logger.debug(f'received [data : {data}] from [addr : {addr}]')
-            self.parse_data(data)           
+            try:
+                data, addr = self._sock.recvfrom(1024)
+                logger.debug(f'received [data : {data}] from [addr : {addr}]')
+                self.parse_data(data)           
+            except Exception as e:
+                raise e
 
     def parse_data(self, data):
         try:
